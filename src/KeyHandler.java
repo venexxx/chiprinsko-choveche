@@ -18,6 +18,7 @@ public class KeyHandler  implements KeyListener {
             case KeyEvent.VK_DOWN -> direction = 'D';
             case KeyEvent.VK_LEFT -> direction = 'L';
             case KeyEvent.VK_RIGHT -> direction = 'R';
+            case KeyEvent.VK_SPACE -> direction = 'S';
         }
     }
 

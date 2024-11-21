@@ -94,6 +94,10 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    public void trapMove(){
+
+    }
+
     public void update(){
 
 
@@ -117,6 +121,9 @@ public class GamePanel extends JPanel implements Runnable {
             case 'R':
                 currentPlayerX += playerSpeed;
                 direction = "Right";
+                break;
+            case 'S':
+                showTitleScreen = false;
                 break;
         }
 
@@ -212,7 +219,26 @@ public class GamePanel extends JPanel implements Runnable {
 
         Graphics2D g2 = (Graphics2D)g;
 
-        g2.setBackground(Color.BLACK);
+
+
+
+
+        if (showTitleScreen){
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Arial", Font.BOLD, 30));
+            String title = "Chiprivsko choveche";
+            String instruction = "Press SPACE to start";
+            FontMetrics metrics = g2.getFontMetrics();
+            int titleX = (getWidth() - metrics.stringWidth(title)) / 2;
+            int titleY = getHeight() / 3;
+            int instructionX = (getWidth() - metrics.stringWidth(instruction)) / 2;
+            int instructionY = getHeight() / 2;
+            g2.drawString(title, titleX, titleY);
+            g2.drawString(instruction, instructionX, instructionY);
+            g2.dispose();
+        }
+
+
 
 
 
@@ -225,7 +251,7 @@ public class GamePanel extends JPanel implements Runnable {
         g2.drawImage(image,playerX,playerY,titleSize,titleSize,null);
 
 
-        g2.drawImage(animationImage,screenWith/2 - titleSize,50,titleSize*2,titleSize*2,null);
+        g2.drawImage(animationImage, screenWith / 2 - titleSize, 50, titleSize * 2, titleSize * 2, null);
 
 
         g2.drawImage(tokensImage,titleSize , screenHeight / 2 - titleSize,null);
@@ -238,25 +264,8 @@ public class GamePanel extends JPanel implements Runnable {
         g2.fillRect(0, screenHeight - titleSize/2, screenWith, titleSize/2);
 
 
-
-
-        if (!showTitleScreen){
-            this.setBackground(Color.PINK);
-            g2.setColor(Color.WHITE);
-            g2.setFont(new Font("Arial", Font.BOLD, 30));
-            String title = "Chiprivsko choveche";
-            String instruction = "Press SPACE to start";
-            FontMetrics metrics = g.getFontMetrics();
-            int titleX = (getWidth() - metrics.stringWidth(title)) / 2;
-            int titleY = getHeight() / 3;
-            int instructionX = (getWidth() - metrics.stringWidth(instruction)) / 2;
-            int instructionY = getHeight() / 2;
-            g.drawString(title, titleX, titleY);
-            g.drawString(instruction, instructionX, instructionY);
-
-        }
-
         g2.dispose();
+
 
     }
 }
