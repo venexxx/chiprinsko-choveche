@@ -14,6 +14,8 @@ public class GamePanel extends JPanel implements Runnable {
     final int screenWith = titleSize * maxScreenCol;
     final int screenHeight = titleSize * maxScreenRow;
 
+    double fps = 60;
+
     private String direction = "Up";
 
     boolean showTitleScreen = true;
@@ -23,10 +25,17 @@ public class GamePanel extends JPanel implements Runnable {
     Image image;
     Image animationImage;
 
+    Image tokensImage;
+    Image storageImage;
+
     int playerX = 100;
     int playerY = 100;
 
     int playerSpeed = 6;
+
+
+
+
 
     public GamePanel(){
         this.setPreferredSize(new Dimension(screenWith,screenHeight));
@@ -46,29 +55,40 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void run() {
 
-        double drawInterval = 1000000000/60;
+        double drawInterval = (double) 1000000000 / fps;
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
+        long timer = 0;
+        int drawCount = 0;
         long imageChangingTime;
         while (gameTread != null){
 
 
             currentTime = System.nanoTime();
+
             imageChangingTime = (System.currentTimeMillis() % 10000) /1000;
 
             animationImage = getAnimationImage(imageChangingTime);
 
-            System.out.println("image time:"+imageChangingTime);
+
 
             delta += (currentTime - lastTime) / drawInterval;
+            timer += (currentTime -lastTime);
+            lastTime = currentTime;
 
-            lastTime  = currentTime;
 
             if (delta >= 1){
                 update();
                 repaint();
                 delta--;
+                drawCount++;
+            }
+
+            if (timer >= 1000000000){
+                System.out.println("FPS:" + drawCount);
+                drawCount = 0;
+                timer = 0;
             }
 
         }
@@ -114,15 +134,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
-//        if (keyHandler.getDirection() == 'U'){
-//
-//        } else if (keyHandler.getDirection() == 'D') {
-//
-//        } else if (keyHandler.getDirection() == 'L') {
-//
-//        }else if (keyHandler.getDirection() == 'R'){
-//
-//        }
+
 
 
 
@@ -144,6 +156,30 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         return currentAnimatiuonImage;
+    }
+
+    public Image getTokenImage(){
+
+        Image tokenImage = null;
+        try {
+            tokenImage = ImageIO.read(getClass().getResourceAsStream("image/tokens.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return tokenImage;
+    }
+
+    public Image getStorageImage(){
+
+        Image tokenImage = null;
+        try {
+            tokenImage = ImageIO.read(getClass().getResourceAsStream("image/storage.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return tokenImage;
     }
     public Image getPlayerImage(String direction) {
         Image playerImage = null;
@@ -182,12 +218,18 @@ public class GamePanel extends JPanel implements Runnable {
 
         image = getPlayerImage(direction);
 
+        tokensImage = getTokenImage();
+        storageImage = getStorageImage();
+
 
         g2.drawImage(image,playerX,playerY,titleSize,titleSize,null);
 
 
         g2.drawImage(animationImage,screenWith/2 - titleSize,50,titleSize*2,titleSize*2,null);
 
+
+        g2.drawImage(tokensImage,titleSize , screenHeight / 2 - titleSize,null);
+        g2.drawImage(storageImage,screenWith - titleSize * 4, screenHeight / 2 - titleSize,null);
 
         g2.setColor(Color.GRAY);
         g2.fillRect(0, 0, titleSize/2, screenHeight);
