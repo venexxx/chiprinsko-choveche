@@ -31,7 +31,18 @@ public class GamePanel extends JPanel implements Runnable {
     int playerX = 100;
     int playerY = 100;
 
+    int tokenX = titleSize;
+    int tokenY = screenHeight / 2 - titleSize;
+
+    int storageX = screenWith - titleSize * 4;
+    int storageY = screenHeight / 2 - titleSize;
+
     int playerSpeed = 6;
+
+
+    int playerCapacity = 0;
+    int tokenCapacity = 8;
+    int storageCapacity = 0;
 
 
 
@@ -94,16 +105,13 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    public void trapMove(){
 
-    }
 
     public void update(){
 
 
         int currentPlayerX = playerX;
         int currentPlayerY = playerY;
-
 
         switch (keyHandler.getDirection()){
             case 'U':
@@ -132,20 +140,34 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
+        if(((currentPlayerX >= 34 && currentPlayerX <= 180) && (currentPlayerY >= 262 && currentPlayerY <= 430)) || ((currentPlayerX >= 715 && currentPlayerX <= 900) && (currentPlayerY >= 256 && currentPlayerY <= 430))){
+
+
+            return;
+        }
+
         playerX = currentPlayerX;
         playerY = currentPlayerY;
 
+        tokenMoving();
 
+    }
 
+    public void tokenMoving(){
 
+        if ((playerX >= 33 && playerX <= 184) && (playerY >= 256 && playerY <= 430)){
+             if (playerCapacity < 4 && tokenCapacity > 0){
+                playerCapacity++;
+                tokenCapacity--;
+            }
+        }
 
-
-
-
-
-
-
-
+        if ((playerX >= 712 && playerX <= 900) && (playerY >= 250 && playerY <= 436)){
+            if (playerCapacity > 0 && storageCapacity < storageCapacity + playerCapacity){
+                playerCapacity--;
+                storageCapacity++;
+            }
+        }
     }
 
     public Image getAnimationImage(Long second)  {
@@ -254,14 +276,48 @@ public class GamePanel extends JPanel implements Runnable {
         g2.drawImage(animationImage, screenWith / 2 - titleSize, 50, titleSize * 2, titleSize * 2, null);
 
 
-        g2.drawImage(tokensImage,titleSize , screenHeight / 2 - titleSize,null);
-        g2.drawImage(storageImage,screenWith - titleSize * 4, screenHeight / 2 - titleSize,null);
+        g2.drawImage(tokensImage,tokenX ,tokenY ,titleSize * 2,titleSize * 2,null);
+        g2.drawImage(storageImage,storageX, storageY,titleSize * 2,titleSize * 2,null);
+
+
+
 
         g2.setColor(Color.GRAY);
         g2.fillRect(0, 0, titleSize/2, screenHeight);
         g2.fillRect(0, 0, screenWith, titleSize/2);
         g2.fillRect(screenWith - titleSize/2, 0, titleSize/2, screenHeight);
         g2.fillRect(0, screenHeight - titleSize/2, screenWith, titleSize/2);
+
+
+        // Изобразяваме колко квадратчета е взел човеяето
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 16));
+        String playerCapacity = "Player capacity: " + this.playerCapacity;
+        FontMetrics playerCounterMetrics = g2.getFontMetrics();
+        int scoreX = (getWidth() - playerCounterMetrics.stringWidth(playerCapacity)) / 2;
+        int scoreY = originalTitleSize;
+        g.drawString(playerCapacity, scoreX, scoreY);
+
+
+
+        // Изобразяваме колко квадратчета остават в хранилишето
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 16));
+        String tokenCapacity = "Token remaining capacity: " + this.tokenCapacity;
+        FontMetrics tokenCounterMetrics = g2.getFontMetrics();
+        int tokenCounterX = (tokenCounterMetrics.stringWidth(tokenCapacity)) / 2;
+        int tokenCounterY = originalTitleSize;
+        g.drawString(tokenCapacity, tokenCounterX, tokenCounterY);
+
+
+        // Изобразяваме колко квадратчета са пренесени успесшно
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 16));
+        String storageCapacity = "Storage capacity: " + this.storageCapacity;
+        FontMetrics storageCounterMetrics = g2.getFontMetrics();
+        int storageCounterX = (getWidth() - storageCounterMetrics.stringWidth(storageCapacity) * 2);
+        int storageCounterY = originalTitleSize;
+        g.drawString(storageCapacity, storageCounterX, storageCounterY);
 
 
         g2.dispose();
