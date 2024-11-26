@@ -191,7 +191,12 @@ public class GamePanel extends JPanel implements Runnable {
 
         Image tokenImage = null;
         try {
-            tokenImage = ImageIO.read(getClass().getResourceAsStream("image/tokens.png"));
+            if (tokenCapacity == 8){
+                tokenImage = ImageIO.read(getClass().getResourceAsStream("image/tokens/tokens.png"));
+            }else {
+               int tokenImageIndex = tokenCapacity + 1;
+                tokenImage = ImageIO.read(getClass().getResourceAsStream("image/tokens/tokens" + tokenImageIndex + ".png"));
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -201,14 +206,14 @@ public class GamePanel extends JPanel implements Runnable {
 
     public Image getStorageImage(){
 
-        Image tokenImage = null;
+        Image storageImage = null;
         try {
-            tokenImage = ImageIO.read(getClass().getResourceAsStream("image/storage.png"));
+            storageImage = ImageIO.read(getClass().getResourceAsStream("image/storages/storage" + storageCapacity + ".png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return tokenImage;
+        return storageImage;
     }
     public Image getPlayerImage(String direction) {
         Image playerImage = null;
@@ -273,7 +278,7 @@ public class GamePanel extends JPanel implements Runnable {
         g2.drawImage(image,playerX,playerY,titleSize,titleSize,null);
 
 
-        g2.drawImage(animationImage, screenWith / 2 - titleSize, 50, titleSize * 2, titleSize * 2, null);
+        g2.drawImage(animationImage, screenWith / 2 - titleSize, 50, titleSize * 2, titleSize * 2 , null);
 
 
         g2.drawImage(tokensImage,tokenX ,tokenY ,titleSize * 2,titleSize * 2,null);
