@@ -38,6 +38,13 @@ public class GamePanel extends JPanel implements Runnable {
     int storageX = screenWith - titleSize * 4;
     int storageY = screenHeight / 2 - titleSize;
 
+
+    int trapX = 100;
+    int trapY = 100;
+
+    int trapXSpeed = 3;
+    int trapYSpeed = 3;
+
     int playerSpeed = 6;
 
 
@@ -151,18 +158,31 @@ public class GamePanel extends JPanel implements Runnable {
         playerY = currentPlayerY;
 
         tokenMoving();
+        trapMoving();
 
+    }
+
+    public void trapMoving(){
+        trapX += trapXSpeed;
+        trapY += trapYSpeed;
+
+        if ((trapX <= 0 || trapX + titleSize * 2 >= getWidth()) || ((trapX >= 33 && trapX <= 184) && (trapY >= 256 && trapY <= 430))) {
+            trapXSpeed = -trapXSpeed;
+        }
+        if ((trapY <= 0 || trapY + titleSize * 2 >= getHeight()) || ((trapX >= 712 && trapX <= 900) && (trapY >= 250 && trapY <= 436))) {
+            trapYSpeed = -trapYSpeed;
+        }
     }
 
     public void tokenMoving(){
 
         if ((playerX >= 33 && playerX <= 184) && (playerY >= 256 && playerY <= 430)){
              if (playerCapacity < 4 && tokenCapacity > 0){
-                 try {
-                     TimeUnit.SECONDS.sleep(1);
-                 } catch (InterruptedException e) {
-                     throw new RuntimeException(e);
-                 }
+//                 try {
+//                     TimeUnit.SECONDS.sleep(1);
+//                 } catch (InterruptedException e) {
+//                     throw new RuntimeException(e);
+//                 }
                 playerCapacity++;
                 tokenCapacity--;
 
@@ -171,11 +191,11 @@ public class GamePanel extends JPanel implements Runnable {
 
         if ((playerX >= 712 && playerX <= 900) && (playerY >= 250 && playerY <= 436)){
             if (playerCapacity > 0 && storageCapacity < storageCapacity + playerCapacity){
-                try {
-                    TimeUnit.SECONDS.sleep(1);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+//                try {
+//                    TimeUnit.SECONDS.sleep(1);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
                 playerCapacity--;
                 storageCapacity++;
             }
@@ -290,7 +310,7 @@ public class GamePanel extends JPanel implements Runnable {
         g2.drawImage(image,playerX,playerY,titleSize,titleSize,null);
 
 
-        g2.drawImage(animationImage, screenWith / 2 - titleSize, 50, titleSize * 2, titleSize * 2 , null);
+        g2.drawImage(animationImage, trapX, trapY, titleSize * 2, titleSize * 2 , null);
 
 
         g2.drawImage(tokensImage,tokenX ,tokenY ,titleSize * 2,titleSize * 2,null);
