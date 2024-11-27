@@ -2,6 +2,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -157,13 +158,24 @@ public class GamePanel extends JPanel implements Runnable {
 
         if ((playerX >= 33 && playerX <= 184) && (playerY >= 256 && playerY <= 430)){
              if (playerCapacity < 4 && tokenCapacity > 0){
+                 try {
+                     TimeUnit.SECONDS.sleep(1);
+                 } catch (InterruptedException e) {
+                     throw new RuntimeException(e);
+                 }
                 playerCapacity++;
                 tokenCapacity--;
+
             }
         }
 
         if ((playerX >= 712 && playerX <= 900) && (playerY >= 250 && playerY <= 436)){
             if (playerCapacity > 0 && storageCapacity < storageCapacity + playerCapacity){
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 playerCapacity--;
                 storageCapacity++;
             }
@@ -223,13 +235,13 @@ public class GamePanel extends JPanel implements Runnable {
 
             switch (direction) {
                 case "Up" ->
-                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/chiprovskoChoveche.png"));
+                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche" + playerCapacity + ".png"));
                 case "Down" ->
-                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/chiprovskoChoveche 2.png"));
+                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/down/chiprovskoChoveche" + playerCapacity + ".png"));
                 case "Left" ->
-                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/chiprovskoChoveche 3.png"));
+                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/left/chiprovskoChoveche" + playerCapacity + ".png"));
                 case "Right" ->
-                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/chiprovskoChoveche.png"));
+                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche" + playerCapacity + ".png"));
             }
         }catch (Exception e){
             e.printStackTrace();
