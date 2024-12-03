@@ -26,6 +26,8 @@ public class GamePanel extends JPanel implements Runnable {
     Image image;
     Image animationImage;
 
+    Image backpackImage;
+
     Image tokensImage;
     Image storageImage;
 
@@ -45,6 +47,9 @@ public class GamePanel extends JPanel implements Runnable {
     int trapXSpeed = 3;
     int trapYSpeed = 3;
 
+    int backpackX = screenWith / 2;
+    int backpackY = screenHeight - titleSize * 2;
+
     int playerSpeed = 6;
 
 
@@ -55,6 +60,8 @@ public class GamePanel extends JPanel implements Runnable {
     boolean isPlayerDeath = false;
 
     boolean isGameStarted = false;
+
+    boolean isBackPackPicked = false;
 
 
 
@@ -169,6 +176,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         tokenMoving();
         trapMoving();
+        backpackPicking();
 
     }
 
@@ -183,6 +191,8 @@ public class GamePanel extends JPanel implements Runnable {
             playerCapacity = 0;
             tokenCapacity = 8;
             storageCapacity = 0;
+
+            isBackPackPicked = false;
             return;
         }
 
@@ -206,7 +216,17 @@ public class GamePanel extends JPanel implements Runnable {
 
     }
 
+    public void backpackPicking(){
+        if (((playerY <= backpackY + titleSize) && (playerY + titleSize >= backpackY)) && ((playerX <= backpackX + titleSize) && (playerX + titleSize   >= backpackX))){
+            isBackPackPicked = true;
+        }
+    }
+
     public void tokenMoving(){
+
+        if (!isBackPackPicked){
+            return;
+        }
 
         if ((playerX >= 33 && playerX <= 184) && (playerY >= 256 && playerY <= 430)){
              if (playerCapacity < 4 && tokenCapacity > 0){
@@ -279,12 +299,38 @@ public class GamePanel extends JPanel implements Runnable {
 
         return storageImage;
     }
+
+
+    public Image getBackpackImage(){
+
+
+        try {
+            backpackImage = ImageIO.read(getClass().getResourceAsStream("image/backpack.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return backpackImage;
+    }
     public Image getPlayerImage(String direction) {
         Image playerImage = null;
 
         try {
 
 
+            if (!isBackPackPicked){
+                switch (direction) {
+                    case "Up" ->
+                            playerImage = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche.png"));
+                    case "Down" ->
+                            playerImage = ImageIO.read(getClass().getResourceAsStream("image/down/chiprovskoChoveche.png"));
+                    case "Left" ->
+                            playerImage = ImageIO.read(getClass().getResourceAsStream("image/left/chiprovskoChoveche.png"));
+                    case "Right" ->
+                            playerImage = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche.png"));
+                }
+                return playerImage;
+            }
             switch (direction) {
                 case "Up" ->
                         playerImage = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche" + playerCapacity + ".png"));
@@ -347,6 +393,9 @@ public class GamePanel extends JPanel implements Runnable {
 
         tokensImage = getTokenImage();
         storageImage = getStorageImage();
+        getBackpackImage();
+
+
 
 
         g2.drawImage(image,playerX,playerY,titleSize,titleSize,null);
@@ -357,6 +406,11 @@ public class GamePanel extends JPanel implements Runnable {
 
         g2.drawImage(tokensImage,tokenX ,tokenY ,titleSize * 2,titleSize * 2,null);
         g2.drawImage(storageImage,storageX, storageY,titleSize * 2,titleSize * 2,null);
+
+        if (!isBackPackPicked){
+            g2.drawImage(backpackImage,backpackX, backpackY,titleSize,titleSize,null);
+        }
+
 
 
 
