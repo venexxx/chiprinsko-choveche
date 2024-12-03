@@ -29,8 +29,8 @@ public class GamePanel extends JPanel implements Runnable {
     Image tokensImage;
     Image storageImage;
 
-    int playerX = 100;
-    int playerY = 100;
+    int playerX = 350;
+    int playerY = 450;
 
     int tokenX = titleSize;
     int tokenY = screenHeight / 2 - titleSize;
@@ -51,6 +51,10 @@ public class GamePanel extends JPanel implements Runnable {
     int playerCapacity = 0;
     int tokenCapacity = 8;
     int storageCapacity = 0;
+
+    boolean isPlayerDeath = false;
+
+    boolean isGameStarted = false;
 
 
 
@@ -140,6 +144,12 @@ public class GamePanel extends JPanel implements Runnable {
                 break;
             case 'S':
                 showTitleScreen = false;
+                isGameStarted = true;
+                break;
+            case 'r':
+                showTitleScreen = true;
+                isGameStarted = false;
+                isPlayerDeath = false;
                 break;
         }
 
@@ -163,6 +173,24 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void trapMoving(){
+
+        if (!isGameStarted || isPlayerDeath){
+            trapX = 100;
+            trapY = 100;
+            playerX = 350;
+            playerY = 450;
+
+            playerCapacity = 0;
+            tokenCapacity = 8;
+            storageCapacity = 0;
+            return;
+        }
+
+        if (((trapY <= playerY + titleSize) && (trapY + titleSize * 2 >= playerY)) && ((trapX <= playerX + titleSize && (trapX + titleSize * 2 >= playerX)))){
+            System.out.println("ok");
+            isPlayerDeath = true;
+        }
+
         trapX += trapXSpeed;
         trapY += trapYSpeed;
 
@@ -172,6 +200,10 @@ public class GamePanel extends JPanel implements Runnable {
         if ((trapY <= 0 || trapY + titleSize * 2 >= getHeight()) || ((trapX >= 712 && trapX <= 900) && (trapY >= 250 && trapY <= 436))) {
             trapYSpeed = -trapYSpeed;
         }
+
+
+
+
     }
 
     public void tokenMoving(){
@@ -189,7 +221,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
 
-        if ((playerX >= 712 && playerX <= 900) && (playerY >= 250 && playerY <= 436)){
+        if ((playerX >= 710 && playerX <= 902) && (playerY >= 250 && playerY <= 436)){
             if (playerCapacity > 0 && storageCapacity < storageCapacity + playerCapacity){
 //                try {
 //                    TimeUnit.SECONDS.sleep(1);
@@ -281,6 +313,16 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
+        if (isPlayerDeath){
+            g2.setColor(Color.WHITE);
+            String message = "Game Over! Press R to Restart";
+            g2.setFont(new Font("Arial", Font.BOLD, 20));
+            FontMetrics metrics = g.getFontMetrics();
+            int x = (getWidth() - metrics.stringWidth(message)) / 2;
+            int y = getHeight() / 2;
+            g2.drawString(message, x, y);
+            return;
+        }
 
         if (showTitleScreen){
             g2.setColor(Color.WHITE);
@@ -356,6 +398,15 @@ public class GamePanel extends JPanel implements Runnable {
         int storageCounterY = originalTitleSize;
         g.drawString(storageCapacity, storageCounterX, storageCounterY);
 
+
+        // Изобразяваме дали човечето е живо
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 16));
+        String isPlayerDeath = "Is player death: " + this.isPlayerDeath;
+        FontMetrics isPlayerDeathMetrics = g2.getFontMetrics();
+        int gameStatusX = (getWidth() - isPlayerDeathMetrics.stringWidth(isPlayerDeath)) / 2;
+        int gameStatusY = getHeight() - originalTitleSize;
+        g.drawString(isPlayerDeath, gameStatusX, gameStatusY);
 
         g2.dispose();
 
