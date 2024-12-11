@@ -50,6 +50,14 @@ public class GamePanel extends JPanel implements Runnable {
     int backpackX = screenWith / 2;
     int backpackY = screenHeight - titleSize * 2;
 
+
+    int backpackGuardX = backpackX - 50;
+    int backpackGuardY = screenHeight - titleSize;
+
+
+    boolean guardFlag = true;
+
+
     int playerSpeed = 6;
 
 
@@ -177,6 +185,7 @@ public class GamePanel extends JPanel implements Runnable {
         tokenMoving();
         trapMoving();
         backpackPicking();
+        backpackGuardMoving();
 
     }
 
@@ -220,6 +229,40 @@ public class GamePanel extends JPanel implements Runnable {
         if (((playerY <= backpackY + titleSize) && (playerY + titleSize >= backpackY)) && ((playerX <= backpackX + titleSize) && (playerX + titleSize   >= backpackX))){
             isBackPackPicked = true;
         }
+    }
+
+    public void backpackGuardMoving(){
+
+        if (((backpackGuardY <= playerY + titleSize) && (backpackGuardY + 24 >= playerY)) && ((backpackGuardX <= playerX + titleSize && (backpackGuardX + 24 >= playerX)))){
+            System.out.println("ok");
+            isPlayerDeath = true;
+        }
+
+
+        if (guardFlag) {
+            if (((screenHeight - titleSize) - 100 != backpackGuardY) && (backpackX - 50) == backpackGuardX) {
+                backpackGuardY-=2;
+            } else if (((screenHeight - titleSize) - 100 == backpackGuardY) && (backpackX - 50) + 150 != backpackGuardX) {
+                backpackGuardX+=2;
+            } else if (((screenHeight - titleSize) != backpackGuardY) && (backpackX - 50) + 150 == backpackGuardX) {
+                backpackGuardY+=2;
+            }else {
+                guardFlag = false;
+            }
+        }else {
+           if (((screenHeight - titleSize) - 100 != backpackGuardY) && (backpackX - 50) + 150 == backpackGuardX){
+               backpackGuardY-=2;
+           } else if (((screenHeight - titleSize) - 100 == backpackGuardY) && (backpackX - 50)  != backpackGuardX) {
+               backpackGuardX-=2;
+           } else if (((screenHeight - titleSize) != backpackGuardY) && (backpackX - 50) == backpackGuardX) {
+               backpackGuardY+=2;
+           }else {
+               guardFlag = true;
+           }
+        }
+
+
+
     }
 
     public void tokenMoving(){
@@ -414,6 +457,8 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
+        g2.setColor(Color.RED);
+        g2.fillRect(backpackGuardX,backpackGuardY,24,24);
 
         g2.setColor(Color.GRAY);
         g2.fillRect(0, 0, titleSize/2, screenHeight);
