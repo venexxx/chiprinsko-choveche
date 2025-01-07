@@ -6,20 +6,13 @@ import java.util.concurrent.TimeUnit;
 
 public class GamePanel extends JPanel implements Runnable {
 
-//    final int originalTitleSize = 16;
-//    final int scale = 4;
-//    final int titleSize = originalTitleSize * scale;
-//
-//    final int maxScreenCol = 16;
-//    final int maxScreenRow = 12;
-//    final int screenWith = titleSize * maxScreenCol;
-//    final int screenHeight = titleSize * maxScreenRow;
-//
-//    double fps = 60;
+
 
 
 
     Screen screen = new Screen();
+    Player player;
+    Backpack backpack;
 
     private String direction = "Up";
 
@@ -27,17 +20,19 @@ public class GamePanel extends JPanel implements Runnable {
 
     Thread gameTread;
     KeyHandler keyHandler = new KeyHandler();
-    Image image;
+
+
+
+
     Image animationImage;
 
-    Image backpackImage;
 
     Image tokensImage;
     Image storageImage;
 
 
-    int playerX = 350;
-    int playerY = 450;
+
+
 
     int tokenX = screen.titleSize;
     int tokenY = screen.screenHeight / 2 - screen.titleSize;
@@ -52,35 +47,26 @@ public class GamePanel extends JPanel implements Runnable {
     int trapXSpeed = 3;
     int trapYSpeed = 3;
 
-    int backpackX = screen.screenWith / 2;
-    int backpackY = screen.screenHeight - screen.titleSize * 2;
 
 
-    int backpackGuardX = backpackX - 50;
-    int backpackGuardY = screen.screenHeight - screen.titleSize;
 
 
-    boolean guardFlag = true;
 
 
-    int playerSpeed = 6;
-
-
-    int playerCapacity = 0;
     int tokenCapacity = 8;
     int storageCapacity = 0;
 
-    boolean isPlayerDeath = false;
 
     boolean isGameStarted = false;
 
-    boolean isBackPackPicked = false;
 
 
 
 
 
     public GamePanel(){
+        backpack = new Backpack();
+        player = new Player();
         this.setPreferredSize(new Dimension(screen.screenWith, screen.screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
@@ -142,24 +128,24 @@ public class GamePanel extends JPanel implements Runnable {
     public void update(){
 
 
-        int currentPlayerX = playerX;
-        int currentPlayerY = playerY;
+        int futurePlayerX = player.playerX;
+        int futurePlayerY = player.playerY;
 
         switch (keyHandler.getDirection()){
             case 'U':
-                currentPlayerY -= playerSpeed;
+                futurePlayerY -= player.playerSpeed;
                 direction = "Up";
                 break;
             case 'D':
-                currentPlayerY += playerSpeed;
+                futurePlayerY += player.playerSpeed;
                 direction = "Down";
                 break;
             case 'L':
-                currentPlayerX -= playerSpeed;
+                futurePlayerX -= player.playerSpeed;
                 direction = "Left";
                 break;
             case 'R':
-                currentPlayerX += playerSpeed;
+                futurePlayerX += player.playerSpeed;
                 direction = "Right";
                 break;
             case 'S':
@@ -169,50 +155,39 @@ public class GamePanel extends JPanel implements Runnable {
             case 'r':
                 showTitleScreen = true;
                 isGameStarted = false;
-                isPlayerDeath = false;
+                player.isPlayerDeath = false;
                 break;
         }
 
-        if (currentPlayerX< 1 + screen.titleSize / 2 || currentPlayerX >= screen.screenWith - (screen.titleSize + screen.titleSize / 2)||
-                currentPlayerY < 1 + screen.titleSize / 2 || currentPlayerY >= screen.screenHeight - (screen.titleSize + screen.titleSize / 2)) {
-            return;
-        }
+        backpack.checkIfPlayerIsOnBackpack(player);
+        player =  backpack.backpackGuardMove(player);
 
-        if(((currentPlayerX >= 34 && currentPlayerX <= 180) && (currentPlayerY >= 262 && currentPlayerY <= 430)) || ((currentPlayerX >= 715 && currentPlayerX <= 900) && (currentPlayerY >= 256 && currentPlayerY <= 430))){
-
-
-            return;
-        }
-
-        playerX = currentPlayerX;
-        playerY = currentPlayerY;
-
+        player.playerMove(futurePlayerX,futurePlayerY);
         tokenMoving();
         trapMoving();
-        backpackPicking();
-        backpackGuardMoving();
+
 
     }
 
     public void trapMoving(){
 
-        if (!isGameStarted || isPlayerDeath){
+        if (!isGameStarted || player.isPlayerDeath){
             trapX = 100;
             trapY = 100;
-            playerX = 350;
-            playerY = 450;
+            player.playerX = 350;
+            player.playerY = 450;
 
-            playerCapacity = 0;
+            player.playerCapacity = 0;
             tokenCapacity = 8;
             storageCapacity = 0;
 
-            isBackPackPicked = false;
+            backpack.isBackPackPicked = false;
             return;
         }
 
-        if (((trapY <= playerY + screen.titleSize) && (trapY + screen.titleSize * 2 >= playerY)) && ((trapX <= playerX + screen.titleSize && (trapX + screen.titleSize * 2 >= playerX)))){
+        if (((trapY <= player.playerY + screen.titleSize) && (trapY + screen.titleSize * 2 >= player.playerY)) && ((trapX <= player.playerX + screen.titleSize && (trapX + screen.titleSize * 2 >= player.playerX)))){
             System.out.println("ok");
-            isPlayerDeath = true;
+            player.isPlayerDeath = true;
         }
 
         trapX += trapXSpeed;
@@ -230,63 +205,26 @@ public class GamePanel extends JPanel implements Runnable {
 
     }
 
-    public void backpackPicking(){
-        if (((playerY <= backpackY + screen.titleSize) && (playerY + screen.titleSize >= backpackY)) && ((playerX <= backpackX + screen.titleSize) && (playerX + screen.titleSize   >= backpackX))){
-            isBackPackPicked = true;
-        }
-    }
-
-    public void backpackGuardMoving(){
-
-        if (((backpackGuardY <= playerY + screen.titleSize) && (backpackGuardY + 24 >= playerY)) && ((backpackGuardX <= playerX + screen.titleSize && (backpackGuardX + 24 >= playerX)))){
-            System.out.println("ok");
-            isPlayerDeath = true;
-        }
 
 
-        if (guardFlag) {
-            if (((screen.screenHeight - screen.titleSize) - 100 != backpackGuardY) && (backpackX - 50) == backpackGuardX) {
-                backpackGuardY-=2;
-            } else if (((screen.screenHeight - screen.titleSize) - 100 == backpackGuardY) && (backpackX - 50) + 150 != backpackGuardX) {
-                backpackGuardX+=2;
-            } else if (((screen.screenHeight - screen.titleSize) != backpackGuardY) && (backpackX - 50) + 150 == backpackGuardX) {
-                backpackGuardY+=2;
-            }else {
-                guardFlag = false;
-            }
-        }else {
-           if (((screen.screenHeight - screen.titleSize) - 100 != backpackGuardY) && (backpackX - 50) + 150 == backpackGuardX){
-               backpackGuardY-=2;
-           } else if (((screen.screenHeight - screen.titleSize) - 100 == backpackGuardY) && (backpackX - 50)  != backpackGuardX) {
-               backpackGuardX-=2;
-           } else if (((screen.screenHeight - screen.titleSize) != backpackGuardY) && (backpackX - 50) == backpackGuardX) {
-               backpackGuardY+=2;
-           }else {
-               guardFlag = true;
-           }
-        }
-
-
-
-    }
 
     public void tokenMoving(){
 
-        if (!isBackPackPicked){
+        if (!backpack.isBackPackPicked){
             return;
         }
 
-        if ((playerX >= 33 && playerX <= 184) && (playerY >= 256 && playerY <= 430)){
-             if (playerCapacity < 4 && tokenCapacity > 0){
-                playerCapacity++;
+        if ((player.playerX >= 33 && player.playerX <= 184) && (player.playerY >= 256 && player.playerY <= 430)){
+             if (player.playerCapacity < 4 && tokenCapacity > 0){
+                 player.playerCapacity++;
                 tokenCapacity--;
 
             }
         }
 
-        if ((playerX >= 710 && playerX <= 902) && (playerY >= 250 && playerY <= 436)){
-            if (playerCapacity > 0 && storageCapacity < storageCapacity + playerCapacity){
-                playerCapacity--;
+        if ((player.playerX >= 710 && player.playerX <= 902) && (player.playerY >= 250 && player.playerY <= 436)){
+            if (player.playerCapacity > 0 && storageCapacity < storageCapacity + player.playerCapacity){
+                player.playerCapacity--;
                 storageCapacity++;
             }
         }
@@ -339,54 +277,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
 
-    public Image getBackpackImage(){
 
-
-        try {
-            backpackImage = ImageIO.read(getClass().getResourceAsStream("image/backpack.png"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return backpackImage;
-    }
-    public Image getPlayerImage(String direction) {
-        Image playerImage = null;
-
-        try {
-
-
-            if (!isBackPackPicked){
-                switch (direction) {
-                    case "Up" ->
-                            playerImage = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche.png"));
-                    case "Down" ->
-                            playerImage = ImageIO.read(getClass().getResourceAsStream("image/down/chiprovskoChoveche.png"));
-                    case "Left" ->
-                            playerImage = ImageIO.read(getClass().getResourceAsStream("image/left/chiprovskoChoveche.png"));
-                    case "Right" ->
-                            playerImage = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche.png"));
-                }
-                return playerImage;
-            }
-            switch (direction) {
-                case "Up" ->
-                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche" + playerCapacity + ".png"));
-                case "Down" ->
-                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/down/chiprovskoChoveche" + playerCapacity + ".png"));
-                case "Left" ->
-                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/left/chiprovskoChoveche" + playerCapacity + ".png"));
-                case "Right" ->
-                        playerImage = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche" + playerCapacity + ".png"));
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-
-        return playerImage;
-
-    }
 
     public void paintComponent(Graphics g){
 
@@ -397,7 +288,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
-        if (isPlayerDeath){
+        if (player.isPlayerDeath){
             g2.setColor(Color.WHITE);
             String message = "Game Over! Press R to Restart";
             g2.setFont(new Font("Arial", Font.BOLD, 20));
@@ -427,16 +318,17 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
-        image = getPlayerImage(direction);
 
         tokensImage = getTokenImage();
         storageImage = getStorageImage();
-        getBackpackImage();
+
+        player.getPlayerImage(direction,backpack);
+        backpack.getBackpackImage();
 
 
 
 
-        g2.drawImage(image,playerX,playerY,screen.titleSize,screen.titleSize,null);
+        g2.drawImage(player.image,player.playerX,player.playerY,screen.titleSize,screen.titleSize,null);
 
 
         g2.drawImage(animationImage, trapX, trapY, screen.titleSize * 2, screen.titleSize * 2 , null);
@@ -445,15 +337,15 @@ public class GamePanel extends JPanel implements Runnable {
         g2.drawImage(tokensImage,tokenX ,tokenY ,screen.titleSize * 2,screen.titleSize * 2,null);
         g2.drawImage(storageImage,storageX, storageY,screen.titleSize * 2,screen.titleSize * 2,null);
 
-        if (!isBackPackPicked){
-            g2.drawImage(backpackImage,backpackX, backpackY,screen.titleSize,screen.titleSize,null);
+        if (!backpack.isBackPackPicked){
+            g2.drawImage(backpack.backpackImage,backpack.backpackX, backpack.backpackY,screen.titleSize,screen.titleSize,null);
         }
 
 
 
 
         g2.setColor(Color.RED);
-        g2.fillRect(backpackGuardX,backpackGuardY,24,24);
+        g2.fillRect(backpack.backpackGuardX,backpack.backpackGuardY,24,24);
 
         g2.setColor(Color.GRAY);
         g2.fillRect(0, 0, screen.titleSize/2, screen.screenHeight);
@@ -465,7 +357,7 @@ public class GamePanel extends JPanel implements Runnable {
         // Изобразяваме колко квадратчета е взел човеяето
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
-        String playerCapacity = "Player capacity: " + this.playerCapacity;
+        String playerCapacity = "Player capacity: " + this.player.playerCapacity;
         FontMetrics playerCounterMetrics = g2.getFontMetrics();
         int scoreX = (getWidth() - playerCounterMetrics.stringWidth(playerCapacity)) / 2;
         int scoreY = screen.originalTitleSize;
@@ -496,7 +388,7 @@ public class GamePanel extends JPanel implements Runnable {
         // Изобразяваме дали човечето е живо
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
-        String isPlayerDeath = "Is player death: " + this.isPlayerDeath;
+        String isPlayerDeath = "Is player death: " + this.player.isPlayerDeath;
         FontMetrics isPlayerDeathMetrics = g2.getFontMetrics();
         int gameStatusX = (getWidth() - isPlayerDeathMetrics.stringWidth(isPlayerDeath)) / 2;
         int gameStatusY = getHeight() - screen.originalTitleSize;
