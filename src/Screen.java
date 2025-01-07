@@ -11,4 +11,6 @@ public class Screen {
     final int screenHeight = titleSize * maxScreenRow;
 
     double fps = 60;
+
+
 }

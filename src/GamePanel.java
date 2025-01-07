@@ -17,6 +17,8 @@ public class GamePanel extends JPanel implements Runnable {
 //
 //    double fps = 60;
 
+
+
     Screen screen = new Screen();
 
     private String direction = "Up";
