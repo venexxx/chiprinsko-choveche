@@ -131,6 +131,8 @@ public class GamePanel extends JPanel implements Runnable {
         int futurePlayerX = player.playerX;
         int futurePlayerY = player.playerY;
 
+        //Checking what key was clicked and based on that switching player direction
+        //If player is death and was clicked R button game reset
         switch (keyHandler.getDirection()){
             case 'U':
                 futurePlayerY -= player.playerSpeed;
@@ -159,6 +161,7 @@ public class GamePanel extends JPanel implements Runnable {
                 break;
         }
 
+        //On every update these methods will be run
         backpack.checkIfPlayerIsOnBackpack(player);
         player =  backpack.backpackGuardMove(player);
 
@@ -171,6 +174,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void trapMoving(){
 
+        //TODO this if statement to be moved in Player class
         if (!isGameStarted || player.isPlayerDeath){
             trapX = 100;
             trapY = 100;
@@ -185,14 +189,18 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
+        //Checks if player was hit by moving trap
         if (((trapY <= player.playerY + screen.titleSize) && (trapY + screen.titleSize * 2 >= player.playerY)) && ((trapX <= player.playerX + screen.titleSize && (trapX + screen.titleSize * 2 >= player.playerX)))){
             System.out.println("ok");
             player.isPlayerDeath = true;
         }
 
+        //and if was not move player
         trapX += trapXSpeed;
         trapY += trapYSpeed;
 
+
+        //Move trap on screen like dvd logo on opposite direction every time trap hits wall
         if ((trapX <= 0 || trapX + screen.titleSize * 2 >= getWidth()) || ((trapX >= 33 && trapX <= 184) && (trapY >= 256 && trapY <= 430))) {
             trapXSpeed = -trapXSpeed;
         }
@@ -210,10 +218,12 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void tokenMoving(){
 
+        //Checks if backpack was picked and if was not you cant move the tokens from storage
         if (!backpack.isBackPackPicked){
             return;
         }
 
+        //Check if player is on token and decreases token capacity
         if ((player.playerX >= 33 && player.playerX <= 184) && (player.playerY >= 256 && player.playerY <= 430)){
              if (player.playerCapacity < 4 && tokenCapacity > 0){
                  player.playerCapacity++;
@@ -222,6 +232,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
 
+        //Check if player is on storage and put all token that are collected in backpack to storage sector
         if ((player.playerX >= 710 && player.playerX <= 902) && (player.playerY >= 250 && player.playerY <= 436)){
             if (player.playerCapacity > 0 && storageCapacity < storageCapacity + player.playerCapacity){
                 player.playerCapacity--;
@@ -232,6 +243,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public Image getAnimationImage(Long second)  {
 
+        //Switch trap image every even second
         Image currentAnimatiuonImage = null;
         try {
 
@@ -249,6 +261,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public Image getTokenImage(){
 
+        //Get main token storage image based on how mane tokens are moved
         Image tokenImage = null;
         try {
             if (tokenCapacity == 8){
@@ -266,6 +279,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public Image getStorageImage(){
 
+        //Get storage image based on how mane tokens are moved
         Image storageImage = null;
         try {
             storageImage = ImageIO.read(getClass().getResourceAsStream("image/storages/storage" + storageCapacity + ".png"));
@@ -288,6 +302,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
+        //Print end game screen when player is death
         if (player.isPlayerDeath){
             g2.setColor(Color.WHITE);
             String message = "Game Over! Press R to Restart";
@@ -299,6 +314,8 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
+
+        //Print start game screen
         if (showTitleScreen){
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Arial", Font.BOLD, 30));
@@ -328,15 +345,21 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
+        //print player image
         g2.drawImage(player.image,player.playerX,player.playerY,screen.titleSize,screen.titleSize,null);
 
 
+        //print trap image
         g2.drawImage(animationImage, trapX, trapY, screen.titleSize * 2, screen.titleSize * 2 , null);
 
 
+        //print main token storage image
         g2.drawImage(tokensImage,tokenX ,tokenY ,screen.titleSize * 2,screen.titleSize * 2,null);
+        //print storage image
         g2.drawImage(storageImage,storageX, storageY,screen.titleSize * 2,screen.titleSize * 2,null);
 
+
+        //Check if backpack is picked -> if it isnt  print separate backpack image
         if (!backpack.isBackPackPicked){
             g2.drawImage(backpack.backpackImage,backpack.backpackX, backpack.backpackY,screen.titleSize,screen.titleSize,null);
         }
@@ -344,9 +367,12 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
+        //print backpack guard rectangle
         g2.setColor(Color.RED);
         g2.fillRect(backpack.backpackGuardX,backpack.backpackGuardY,24,24);
 
+
+        //print screen side frames
         g2.setColor(Color.GRAY);
         g2.fillRect(0, 0, screen.titleSize/2, screen.screenHeight);
         g2.fillRect(0, 0, screen.screenWith, screen.titleSize/2);
@@ -354,7 +380,7 @@ public class GamePanel extends JPanel implements Runnable {
         g2.fillRect(0, screen.screenHeight - screen.titleSize/2, screen.screenWith, screen.titleSize/2);
 
 
-        // Изобразяваме колко квадратчета е взел човеяето
+        // print how many tokens player have in his backpack
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
         String playerCapacity = "Player capacity: " + this.player.playerCapacity;
@@ -365,7 +391,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
-        // Изобразяваме колко квадратчета остават в хранилишето
+        // print how many tokens are left in main storage
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
         String tokenCapacity = "Token remaining capacity: " + this.tokenCapacity;
@@ -375,7 +401,7 @@ public class GamePanel extends JPanel implements Runnable {
         g.drawString(tokenCapacity, tokenCounterX, tokenCounterY);
 
 
-        // Изобразяваме колко квадратчета са пренесени успесшно
+        // print how many token are transferred successfully
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
         String storageCapacity = "Storage capacity: " + this.storageCapacity;
@@ -385,7 +411,7 @@ public class GamePanel extends JPanel implements Runnable {
         g.drawString(storageCapacity, storageCounterX, storageCounterY);
 
 
-        // Изобразяваме дали човечето е живо
+        // print if player is alive
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
         String isPlayerDeath = "Is player death: " + this.player.isPlayerDeath;

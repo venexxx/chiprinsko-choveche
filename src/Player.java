@@ -31,6 +31,7 @@ public class Player extends Screen{
 
     public void playerMove(int futurePlayerX, int futurePlayerY) {
 
+        //checks if the player has reached the screen border
         if (futurePlayerX< 1 + titleSize / 2 || futurePlayerX >= screenWith - (titleSize + titleSize / 2)||
                 futurePlayerY < 1 + titleSize / 2 || futurePlayerY >= screenHeight - (titleSize + titleSize / 2)) {
             return;
@@ -40,6 +41,7 @@ public class Player extends Screen{
             return;
         }
 
+        //if it has not reached the screen borders, it changes its position
         playerX = futurePlayerX;
         playerY = futurePlayerY;
     }
@@ -50,6 +52,7 @@ public class Player extends Screen{
         try {
 
 
+            //take the picture based on which side the player is looking when he hasnt picked the backpack.
             if (!backpack.isBackPackPicked){
                 switch (direction) {
                     case "Up" ->
@@ -64,6 +67,8 @@ public class Player extends Screen{
                 return;
 
             }
+
+            //take the picture based on which side the player is looking when he has picked the backpack.
             switch (direction) {
                 case "Up" ->
                         image = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche" + playerCapacity + ".png"));

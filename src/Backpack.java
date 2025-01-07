@@ -38,6 +38,7 @@ public class Backpack{
 
        player  = checkIfPlayerStepOnBackpackGuard(player);
 
+       //guard moving is splitted on half this flag is for first half of the way of the guard
         if (guardFlag) {
             if (((screen.screenHeight - screen.titleSize) - 100 != backpackGuardY) && (backpackX - 50) == backpackGuardX) {
                 backpackGuardY-=2;
