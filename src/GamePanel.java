@@ -6,16 +6,18 @@ import java.util.concurrent.TimeUnit;
 
 public class GamePanel extends JPanel implements Runnable {
 
-    final int originalTitleSize = 16;
-    final int scale = 4;
-    final int titleSize = originalTitleSize * scale;
+//    final int originalTitleSize = 16;
+//    final int scale = 4;
+//    final int titleSize = originalTitleSize * scale;
+//
+//    final int maxScreenCol = 16;
+//    final int maxScreenRow = 12;
+//    final int screenWith = titleSize * maxScreenCol;
+//    final int screenHeight = titleSize * maxScreenRow;
+//
+//    double fps = 60;
 
-    final int maxScreenCol = 16;
-    final int maxScreenRow = 12;
-    final int screenWith = titleSize * maxScreenCol;
-    final int screenHeight = titleSize * maxScreenRow;
-
-    double fps = 60;
+    Screen screen = new Screen();
 
     private String direction = "Up";
 
@@ -31,14 +33,15 @@ public class GamePanel extends JPanel implements Runnable {
     Image tokensImage;
     Image storageImage;
 
+
     int playerX = 350;
     int playerY = 450;
 
-    int tokenX = titleSize;
-    int tokenY = screenHeight / 2 - titleSize;
+    int tokenX = screen.titleSize;
+    int tokenY = screen.screenHeight / 2 - screen.titleSize;
 
-    int storageX = screenWith - titleSize * 4;
-    int storageY = screenHeight / 2 - titleSize;
+    int storageX = screen.screenWith - screen.titleSize * 4;
+    int storageY = screen.screenHeight / 2 - screen.titleSize;
 
 
     int trapX = 100;
@@ -47,12 +50,12 @@ public class GamePanel extends JPanel implements Runnable {
     int trapXSpeed = 3;
     int trapYSpeed = 3;
 
-    int backpackX = screenWith / 2;
-    int backpackY = screenHeight - titleSize * 2;
+    int backpackX = screen.screenWith / 2;
+    int backpackY = screen.screenHeight - screen.titleSize * 2;
 
 
     int backpackGuardX = backpackX - 50;
-    int backpackGuardY = screenHeight - titleSize;
+    int backpackGuardY = screen.screenHeight - screen.titleSize;
 
 
     boolean guardFlag = true;
@@ -76,7 +79,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
     public GamePanel(){
-        this.setPreferredSize(new Dimension(screenWith,screenHeight));
+        this.setPreferredSize(new Dimension(screen.screenWith, screen.screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
         this.addKeyListener(keyHandler);
@@ -93,7 +96,7 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void run() {
 
-        double drawInterval = (double) 1000000000 / fps;
+        double drawInterval = (double) 1000000000 / screen.fps;
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
@@ -168,8 +171,8 @@ public class GamePanel extends JPanel implements Runnable {
                 break;
         }
 
-        if (currentPlayerX< 1 + titleSize / 2 || currentPlayerX >= screenWith - (titleSize + titleSize / 2)||
-                currentPlayerY < 1 + titleSize / 2 || currentPlayerY >= screenHeight - (titleSize + titleSize / 2)) {
+        if (currentPlayerX< 1 + screen.titleSize / 2 || currentPlayerX >= screen.screenWith - (screen.titleSize + screen.titleSize / 2)||
+                currentPlayerY < 1 + screen.titleSize / 2 || currentPlayerY >= screen.screenHeight - (screen.titleSize + screen.titleSize / 2)) {
             return;
         }
 
@@ -205,7 +208,7 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
-        if (((trapY <= playerY + titleSize) && (trapY + titleSize * 2 >= playerY)) && ((trapX <= playerX + titleSize && (trapX + titleSize * 2 >= playerX)))){
+        if (((trapY <= playerY + screen.titleSize) && (trapY + screen.titleSize * 2 >= playerY)) && ((trapX <= playerX + screen.titleSize && (trapX + screen.titleSize * 2 >= playerX)))){
             System.out.println("ok");
             isPlayerDeath = true;
         }
@@ -213,10 +216,10 @@ public class GamePanel extends JPanel implements Runnable {
         trapX += trapXSpeed;
         trapY += trapYSpeed;
 
-        if ((trapX <= 0 || trapX + titleSize * 2 >= getWidth()) || ((trapX >= 33 && trapX <= 184) && (trapY >= 256 && trapY <= 430))) {
+        if ((trapX <= 0 || trapX + screen.titleSize * 2 >= getWidth()) || ((trapX >= 33 && trapX <= 184) && (trapY >= 256 && trapY <= 430))) {
             trapXSpeed = -trapXSpeed;
         }
-        if ((trapY <= 0 || trapY + titleSize * 2 >= getHeight()) || ((trapX >= 712 && trapX <= 900) && (trapY >= 250 && trapY <= 436))) {
+        if ((trapY <= 0 || trapY + screen.titleSize * 2 >= getHeight()) || ((trapX >= 712 && trapX <= 900) && (trapY >= 250 && trapY <= 436))) {
             trapYSpeed = -trapYSpeed;
         }
 
@@ -226,35 +229,35 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void backpackPicking(){
-        if (((playerY <= backpackY + titleSize) && (playerY + titleSize >= backpackY)) && ((playerX <= backpackX + titleSize) && (playerX + titleSize   >= backpackX))){
+        if (((playerY <= backpackY + screen.titleSize) && (playerY + screen.titleSize >= backpackY)) && ((playerX <= backpackX + screen.titleSize) && (playerX + screen.titleSize   >= backpackX))){
             isBackPackPicked = true;
         }
     }
 
     public void backpackGuardMoving(){
 
-        if (((backpackGuardY <= playerY + titleSize) && (backpackGuardY + 24 >= playerY)) && ((backpackGuardX <= playerX + titleSize && (backpackGuardX + 24 >= playerX)))){
+        if (((backpackGuardY <= playerY + screen.titleSize) && (backpackGuardY + 24 >= playerY)) && ((backpackGuardX <= playerX + screen.titleSize && (backpackGuardX + 24 >= playerX)))){
             System.out.println("ok");
             isPlayerDeath = true;
         }
 
 
         if (guardFlag) {
-            if (((screenHeight - titleSize) - 100 != backpackGuardY) && (backpackX - 50) == backpackGuardX) {
+            if (((screen.screenHeight - screen.titleSize) - 100 != backpackGuardY) && (backpackX - 50) == backpackGuardX) {
                 backpackGuardY-=2;
-            } else if (((screenHeight - titleSize) - 100 == backpackGuardY) && (backpackX - 50) + 150 != backpackGuardX) {
+            } else if (((screen.screenHeight - screen.titleSize) - 100 == backpackGuardY) && (backpackX - 50) + 150 != backpackGuardX) {
                 backpackGuardX+=2;
-            } else if (((screenHeight - titleSize) != backpackGuardY) && (backpackX - 50) + 150 == backpackGuardX) {
+            } else if (((screen.screenHeight - screen.titleSize) != backpackGuardY) && (backpackX - 50) + 150 == backpackGuardX) {
                 backpackGuardY+=2;
             }else {
                 guardFlag = false;
             }
         }else {
-           if (((screenHeight - titleSize) - 100 != backpackGuardY) && (backpackX - 50) + 150 == backpackGuardX){
+           if (((screen.screenHeight - screen.titleSize) - 100 != backpackGuardY) && (backpackX - 50) + 150 == backpackGuardX){
                backpackGuardY-=2;
-           } else if (((screenHeight - titleSize) - 100 == backpackGuardY) && (backpackX - 50)  != backpackGuardX) {
+           } else if (((screen.screenHeight - screen.titleSize) - 100 == backpackGuardY) && (backpackX - 50)  != backpackGuardX) {
                backpackGuardX-=2;
-           } else if (((screenHeight - titleSize) != backpackGuardY) && (backpackX - 50) == backpackGuardX) {
+           } else if (((screen.screenHeight - screen.titleSize) != backpackGuardY) && (backpackX - 50) == backpackGuardX) {
                backpackGuardY+=2;
            }else {
                guardFlag = true;
@@ -273,11 +276,6 @@ public class GamePanel extends JPanel implements Runnable {
 
         if ((playerX >= 33 && playerX <= 184) && (playerY >= 256 && playerY <= 430)){
              if (playerCapacity < 4 && tokenCapacity > 0){
-//                 try {
-//                     TimeUnit.SECONDS.sleep(1);
-//                 } catch (InterruptedException e) {
-//                     throw new RuntimeException(e);
-//                 }
                 playerCapacity++;
                 tokenCapacity--;
 
@@ -286,11 +284,6 @@ public class GamePanel extends JPanel implements Runnable {
 
         if ((playerX >= 710 && playerX <= 902) && (playerY >= 250 && playerY <= 436)){
             if (playerCapacity > 0 && storageCapacity < storageCapacity + playerCapacity){
-//                try {
-//                    TimeUnit.SECONDS.sleep(1);
-//                } catch (InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
                 playerCapacity--;
                 storageCapacity++;
             }
@@ -441,17 +434,17 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
-        g2.drawImage(image,playerX,playerY,titleSize,titleSize,null);
+        g2.drawImage(image,playerX,playerY,screen.titleSize,screen.titleSize,null);
 
 
-        g2.drawImage(animationImage, trapX, trapY, titleSize * 2, titleSize * 2 , null);
+        g2.drawImage(animationImage, trapX, trapY, screen.titleSize * 2, screen.titleSize * 2 , null);
 
 
-        g2.drawImage(tokensImage,tokenX ,tokenY ,titleSize * 2,titleSize * 2,null);
-        g2.drawImage(storageImage,storageX, storageY,titleSize * 2,titleSize * 2,null);
+        g2.drawImage(tokensImage,tokenX ,tokenY ,screen.titleSize * 2,screen.titleSize * 2,null);
+        g2.drawImage(storageImage,storageX, storageY,screen.titleSize * 2,screen.titleSize * 2,null);
 
         if (!isBackPackPicked){
-            g2.drawImage(backpackImage,backpackX, backpackY,titleSize,titleSize,null);
+            g2.drawImage(backpackImage,backpackX, backpackY,screen.titleSize,screen.titleSize,null);
         }
 
 
@@ -461,10 +454,10 @@ public class GamePanel extends JPanel implements Runnable {
         g2.fillRect(backpackGuardX,backpackGuardY,24,24);
 
         g2.setColor(Color.GRAY);
-        g2.fillRect(0, 0, titleSize/2, screenHeight);
-        g2.fillRect(0, 0, screenWith, titleSize/2);
-        g2.fillRect(screenWith - titleSize/2, 0, titleSize/2, screenHeight);
-        g2.fillRect(0, screenHeight - titleSize/2, screenWith, titleSize/2);
+        g2.fillRect(0, 0, screen.titleSize/2, screen.screenHeight);
+        g2.fillRect(0, 0, screen.screenWith, screen.titleSize/2);
+        g2.fillRect(screen.screenWith - screen.titleSize/2, 0, screen.titleSize/2, screen.screenHeight);
+        g2.fillRect(0, screen.screenHeight - screen.titleSize/2, screen.screenWith, screen.titleSize/2);
 
 
         // Изобразяваме колко квадратчета е взел човеяето
@@ -473,7 +466,7 @@ public class GamePanel extends JPanel implements Runnable {
         String playerCapacity = "Player capacity: " + this.playerCapacity;
         FontMetrics playerCounterMetrics = g2.getFontMetrics();
         int scoreX = (getWidth() - playerCounterMetrics.stringWidth(playerCapacity)) / 2;
-        int scoreY = originalTitleSize;
+        int scoreY = screen.originalTitleSize;
         g.drawString(playerCapacity, scoreX, scoreY);
 
 
@@ -484,7 +477,7 @@ public class GamePanel extends JPanel implements Runnable {
         String tokenCapacity = "Token remaining capacity: " + this.tokenCapacity;
         FontMetrics tokenCounterMetrics = g2.getFontMetrics();
         int tokenCounterX = (tokenCounterMetrics.stringWidth(tokenCapacity)) / 2;
-        int tokenCounterY = originalTitleSize;
+        int tokenCounterY = screen.originalTitleSize;
         g.drawString(tokenCapacity, tokenCounterX, tokenCounterY);
 
 
@@ -494,7 +487,7 @@ public class GamePanel extends JPanel implements Runnable {
         String storageCapacity = "Storage capacity: " + this.storageCapacity;
         FontMetrics storageCounterMetrics = g2.getFontMetrics();
         int storageCounterX = (getWidth() - storageCounterMetrics.stringWidth(storageCapacity) * 2);
-        int storageCounterY = originalTitleSize;
+        int storageCounterY = screen.originalTitleSize;
         g.drawString(storageCapacity, storageCounterX, storageCounterY);
 
 
@@ -504,7 +497,7 @@ public class GamePanel extends JPanel implements Runnable {
         String isPlayerDeath = "Is player death: " + this.isPlayerDeath;
         FontMetrics isPlayerDeathMetrics = g2.getFontMetrics();
         int gameStatusX = (getWidth() - isPlayerDeathMetrics.stringWidth(isPlayerDeath)) / 2;
-        int gameStatusY = getHeight() - originalTitleSize;
+        int gameStatusY = getHeight() - screen.originalTitleSize;
         g.drawString(isPlayerDeath, gameStatusX, gameStatusY);
 
         g2.dispose();
