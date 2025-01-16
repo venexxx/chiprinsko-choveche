@@ -14,6 +14,10 @@ public class GamePanel extends JPanel implements Runnable {
     Player player;
     Backpack backpack;
 
+    Tokens tokens;
+
+    Storage storage;
+
     private String direction = "Up";
 
     boolean showTitleScreen = true;
@@ -21,24 +25,10 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameTread;
     KeyHandler keyHandler = new KeyHandler();
 
-
-
-
     Image animationImage;
 
 
-    Image tokensImage;
-    Image storageImage;
 
-
-
-
-
-    int tokenX = screen.titleSize;
-    int tokenY = screen.screenHeight / 2 - screen.titleSize;
-
-    int storageX = screen.screenWith - screen.titleSize * 4;
-    int storageY = screen.screenHeight / 2 - screen.titleSize;
 
 
     int trapX = 100;
@@ -46,15 +36,6 @@ public class GamePanel extends JPanel implements Runnable {
 
     int trapXSpeed = 3;
     int trapYSpeed = 3;
-
-
-
-
-
-
-
-    int tokenCapacity = 8;
-    int storageCapacity = 0;
 
 
     boolean isGameStarted = false;
@@ -67,6 +48,8 @@ public class GamePanel extends JPanel implements Runnable {
     public GamePanel(){
         backpack = new Backpack();
         player = new Player();
+        tokens = new Tokens();
+        storage = new Storage();
         this.setPreferredSize(new Dimension(screen.screenWith, screen.screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
@@ -163,10 +146,11 @@ public class GamePanel extends JPanel implements Runnable {
 
         //On every update these methods will be run
         backpack.checkIfPlayerIsOnBackpack(player);
-        player =  backpack.backpackGuardMove(player);
+        player = backpack.backpackGuardMove(player);
 
         player.playerMove(futurePlayerX,futurePlayerY);
-        tokenMoving();
+        tokens.tokenMoving(backpack,player,storage);
+
         trapMoving();
 
 
@@ -182,8 +166,8 @@ public class GamePanel extends JPanel implements Runnable {
             player.playerY = 450;
 
             player.playerCapacity = 0;
-            tokenCapacity = 8;
-            storageCapacity = 0;
+            tokens.tokenCapacity = 8;
+            storage.storageCapacity = 0;
 
             backpack.isBackPackPicked = false;
             return;
@@ -216,30 +200,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
-    public void tokenMoving(){
 
-        //Checks if backpack was picked and if was not you cant move the tokens from storage
-        if (!backpack.isBackPackPicked){
-            return;
-        }
-
-        //Check if player is on token and decreases token capacity
-        if ((player.playerX >= 33 && player.playerX <= 184) && (player.playerY >= 256 && player.playerY <= 430)){
-             if (player.playerCapacity < 4 && tokenCapacity > 0){
-                 player.playerCapacity++;
-                tokenCapacity--;
-
-            }
-        }
-
-        //Check if player is on storage and put all token that are collected in backpack to storage sector
-        if ((player.playerX >= 710 && player.playerX <= 902) && (player.playerY >= 250 && player.playerY <= 436)){
-            if (player.playerCapacity > 0 && storageCapacity < storageCapacity + player.playerCapacity){
-                player.playerCapacity--;
-                storageCapacity++;
-            }
-        }
-    }
 
     public Image getAnimationImage(Long second)  {
 
@@ -259,36 +220,9 @@ public class GamePanel extends JPanel implements Runnable {
         return currentAnimatiuonImage;
     }
 
-    public Image getTokenImage(){
 
-        //Get main token storage image based on how mane tokens are moved
-        Image tokenImage = null;
-        try {
-            if (tokenCapacity == 8){
-                tokenImage = ImageIO.read(getClass().getResourceAsStream("image/tokens/tokens.png"));
-            }else {
-               int tokenImageIndex = tokenCapacity + 1;
-                tokenImage = ImageIO.read(getClass().getResourceAsStream("image/tokens/tokens" + tokenImageIndex + ".png"));
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
-        return tokenImage;
-    }
 
-    public Image getStorageImage(){
-
-        //Get storage image based on how mane tokens are moved
-        Image storageImage = null;
-        try {
-            storageImage = ImageIO.read(getClass().getResourceAsStream("image/storages/storage" + storageCapacity + ".png"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return storageImage;
-    }
 
 
 
@@ -336,8 +270,8 @@ public class GamePanel extends JPanel implements Runnable {
 
 
 
-        tokensImage = getTokenImage();
-        storageImage = getStorageImage();
+        tokens.getTokenImage();
+        storage.getStorageImage();
 
         player.getPlayerImage(direction,backpack);
         backpack.getBackpackImage();
@@ -354,9 +288,9 @@ public class GamePanel extends JPanel implements Runnable {
 
 
         //print main token storage image
-        g2.drawImage(tokensImage,tokenX ,tokenY ,screen.titleSize * 2,screen.titleSize * 2,null);
+        g2.drawImage(tokens.tokensImage,tokens.tokenX ,tokens.tokenY ,screen.titleSize * 2,screen.titleSize * 2,null);
         //print storage image
-        g2.drawImage(storageImage,storageX, storageY,screen.titleSize * 2,screen.titleSize * 2,null);
+        g2.drawImage(storage.storageImage,storage.storageX, storage.storageY,screen.titleSize * 2,screen.titleSize * 2,null);
 
 
         //Check if backpack is picked -> if it isnt  print separate backpack image
@@ -394,7 +328,7 @@ public class GamePanel extends JPanel implements Runnable {
         // print how many tokens are left in main storage
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
-        String tokenCapacity = "Token remaining capacity: " + this.tokenCapacity;
+        String tokenCapacity = "Token remaining capacity: " + this.tokens.tokenCapacity;
         FontMetrics tokenCounterMetrics = g2.getFontMetrics();
         int tokenCounterX = (tokenCounterMetrics.stringWidth(tokenCapacity)) / 2;
         int tokenCounterY = screen.originalTitleSize;
@@ -404,7 +338,7 @@ public class GamePanel extends JPanel implements Runnable {
         // print how many token are transferred successfully
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
-        String storageCapacity = "Storage capacity: " + this.storageCapacity;
+        String storageCapacity = "Storage capacity: " + storage.storageCapacity;
         FontMetrics storageCounterMetrics = g2.getFontMetrics();
         int storageCounterX = (getWidth() - storageCounterMetrics.stringWidth(storageCapacity) * 2);
         int storageCounterY = screen.originalTitleSize;
@@ -414,7 +348,7 @@ public class GamePanel extends JPanel implements Runnable {
         // print if player is alive
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
-        String isPlayerDeath = "Is player death: " + this.player.isPlayerDeath;
+        String isPlayerDeath = "Is player death: " + player.isPlayerDeath;
         FontMetrics isPlayerDeathMetrics = g2.getFontMetrics();
         int gameStatusX = (getWidth() - isPlayerDeathMetrics.stringWidth(isPlayerDeath)) / 2;
         int gameStatusY = getHeight() - screen.originalTitleSize;
