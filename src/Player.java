@@ -17,17 +17,15 @@ public class Player extends Screen{
 
     boolean isPlayerDeath;
 
+    boolean isBackPackPicked;
+
     public Player() {
         this.playerCapacity = 0;
-        this.isPlayerDeath = false;
     }
 
 
 
-    //TODO after making trap class fix this method
-    public void checkIfPlayerIsDeath(){
 
-    }
 
     public void playerMove(int futurePlayerX, int futurePlayerY) {
 
@@ -53,7 +51,7 @@ public class Player extends Screen{
 
 
             //take the picture based on which side the player is looking when he hasnt picked the backpack.
-            if (!backpack.isBackPackPicked){
+            if (!this.isBackPackPicked){
                 switch (direction) {
                     case "Up" ->
                             image = ImageIO.read(getClass().getResourceAsStream("image/rigthAndUp /chiprovskoChoveche.png"));
@@ -85,6 +83,19 @@ public class Player extends Screen{
 
 
 
+
+    }
+
+    public void checkIfPlayerIsOnBackpack(Backpack backpack){
+        if (((this.playerY <= backpack.backpackY + this.titleSize) && (this.playerY + this.titleSize >= backpack.backpackY)) && ((this.playerX <= backpack.backpackX + this.titleSize) && (this.playerX + this.titleSize   >= backpack.backpackX))){
+            this.isBackPackPicked = true;
+        }
+    }
+
+    public void checkIfPlayerStepOnBackpackGuard(Backpack backpack){
+        if (((backpack.backpackGuardY <= this.playerY + this.titleSize) && (backpack.backpackGuardY + 24 >= this.playerY)) && ((backpack.backpackGuardX <= this.playerX + this.titleSize && (backpack.backpackGuardX + 24 >= this.playerX)))){
+            this.isPlayerDeath = true;
+        }
 
     }
 

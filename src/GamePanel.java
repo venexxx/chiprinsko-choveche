@@ -13,10 +13,9 @@ public class GamePanel extends JPanel implements Runnable {
     Screen screen = new Screen();
     Player player;
     Backpack backpack;
-
     Tokens tokens;
-
     Storage storage;
+    Trap trap;
 
     private String direction = "Up";
 
@@ -25,31 +24,17 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameTread;
     KeyHandler keyHandler = new KeyHandler();
 
-    Image animationImage;
-
-
-
-
-
-    int trapX = 100;
-    int trapY = 100;
-
-    int trapXSpeed = 3;
-    int trapYSpeed = 3;
 
 
     boolean isGameStarted = false;
 
-
-
-
-
-
     public GamePanel(){
         backpack = new Backpack();
         player = new Player();
+        player.isPlayerDeath = false;
         tokens = new Tokens();
         storage = new Storage();
+        trap = new Trap();
         this.setPreferredSize(new Dimension(screen.screenWith, screen.screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
@@ -81,7 +66,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             imageChangingTime = (System.currentTimeMillis() % 10000) /1000;
 
-            animationImage = getAnimationImage(imageChangingTime);
+            trap.getAnimationImage(imageChangingTime);
 
 
 
@@ -138,63 +123,38 @@ public class GamePanel extends JPanel implements Runnable {
                 isGameStarted = true;
                 break;
             case 'r':
+                if (player.isPlayerDeath) {
+                    resetGame();
+                }
                 showTitleScreen = true;
                 isGameStarted = false;
-                player.isPlayerDeath = false;
                 break;
         }
 
-        //On every update these methods will be run
-        backpack.checkIfPlayerIsOnBackpack(player);
-        player = backpack.backpackGuardMove(player);
-
+        //On every update these methods will be run if
+        //the game is started and if not it does not allow the methods below to be executed
+        if (!isGameStarted){
+            return;
+        }
+        backpack.backpackGuardMove();
+        player.checkIfPlayerStepOnBackpackGuard(backpack);
+        player.checkIfPlayerIsOnBackpack(backpack);
         player.playerMove(futurePlayerX,futurePlayerY);
         tokens.tokenMoving(backpack,player,storage);
+        trap.trapMoving(player);
 
-        trapMoving();
+
+
 
 
     }
 
-    public void trapMoving(){
-
-        //TODO this if statement to be moved in Player class
-        if (!isGameStarted || player.isPlayerDeath){
-            trapX = 100;
-            trapY = 100;
-            player.playerX = 350;
-            player.playerY = 450;
-
-            player.playerCapacity = 0;
-            tokens.tokenCapacity = 8;
-            storage.storageCapacity = 0;
-
-            backpack.isBackPackPicked = false;
-            return;
-        }
-
-        //Checks if player was hit by moving trap
-        if (((trapY <= player.playerY + screen.titleSize) && (trapY + screen.titleSize * 2 >= player.playerY)) && ((trapX <= player.playerX + screen.titleSize && (trapX + screen.titleSize * 2 >= player.playerX)))){
-            System.out.println("ok");
-            player.isPlayerDeath = true;
-        }
-
-        //and if was not move player
-        trapX += trapXSpeed;
-        trapY += trapYSpeed;
-
-
-        //Move trap on screen like dvd logo on opposite direction every time trap hits wall
-        if ((trapX <= 0 || trapX + screen.titleSize * 2 >= getWidth()) || ((trapX >= 33 && trapX <= 184) && (trapY >= 256 && trapY <= 430))) {
-            trapXSpeed = -trapXSpeed;
-        }
-        if ((trapY <= 0 || trapY + screen.titleSize * 2 >= getHeight()) || ((trapX >= 712 && trapX <= 900) && (trapY >= 250 && trapY <= 436))) {
-            trapYSpeed = -trapYSpeed;
-        }
-
-
-
-
+    public void resetGame(){
+            player = new Player();
+            trap = new Trap();
+            tokens = new Tokens();
+            storage = new Storage();
+            backpack = new Backpack();
     }
 
 
@@ -284,7 +244,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
         //print trap image
-        g2.drawImage(animationImage, trapX, trapY, screen.titleSize * 2, screen.titleSize * 2 , null);
+        g2.drawImage(trap.animationImage, trap.trapX, trap.trapY, screen.titleSize * 2, screen.titleSize * 2 , null);
 
 
         //print main token storage image
@@ -294,7 +254,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
         //Check if backpack is picked -> if it isnt  print separate backpack image
-        if (!backpack.isBackPackPicked){
+        if (!player.isBackPackPicked){
             g2.drawImage(backpack.backpackImage,backpack.backpackX, backpack.backpackY,screen.titleSize,screen.titleSize,null);
         }
 

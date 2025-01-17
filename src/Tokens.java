@@ -24,7 +24,7 @@ public class Tokens extends Screen {
     public void tokenMoving(Backpack backpack,Player player,Storage storage){
 
         //Checks if backpack was picked and if was not you cant move the tokens from storage
-        if (!backpack.isBackPackPicked){
+        if (!player.isBackPackPicked){
             return;
         }
 
